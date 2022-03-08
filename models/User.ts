@@ -63,7 +63,7 @@ export class User {
   @prop({
     ref: () => User,
   })
-  public notCheckedFriendRequestsNumber?: number;
+  public notCheckedFriendRequestsFrom?: Ref<User>[];
 
   
 

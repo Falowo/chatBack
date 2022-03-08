@@ -31,7 +31,7 @@ export class Message {
     required: true,
   })
   public text: string;
-
+  // abort or error
   // 10: pending
   // 20: sent
   // 30: received by all users
@@ -39,7 +39,7 @@ export class Message {
   // 50: abort
 
   @prop({
-    enum: [10, 20, 30, 40, 50],
+    enum: [0, 10, 20, 30, 40],
     default: 1,
   })
   public status: Number;

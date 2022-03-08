@@ -61,7 +61,6 @@ router.put(
   "/:id/like",
   async (req: AppRequest, res: Response) => {
     const { likerId } = req.body;
-    // console.log({ likerId });
     try {
       const post = await PostModel.findById(req.params.id);
       if (!post.likersId?.includes(req.body.userId)) {
@@ -86,8 +85,6 @@ router.put(
 router.get(
   "/timeline/currentUser",
   async (req: AppRequest, res: Response) => {
-    console.log("timeline");
-    console.log(req.user);
 
     try {
       const currentUser = await UserModel.findById(
@@ -122,23 +119,16 @@ router.get(
               currentUser._id.toString(),
         );
 
-      console.log({
-        currentUserPosts,
-        friendsPosts,
-      });
 
       const timeline = (currentUserPosts || []).concat(
-        // friendsPosts.flat(),
         flatFriendsPosts,
       );
-      console.log({ timeline });
 
       timeline.sort((a: Post, b: Post) => {
         return (
           b.createdAt!.valueOf() - a.createdAt!.valueOf()
         );
       });
-      console.log({ timeline });
 
       res.status(200).json(timeline);
     } catch (err) {
@@ -153,12 +143,10 @@ router.get(
   "/profile/:username",
   async (req: AppRequest, res: Response) => {
     const username = req.params.username;
-    // console.log({ username });
     try {
       const user = await UserModel.findOne({
         username: username,
       });
-      // console.log(user);
       const posts = await PostModel.find({
         $or: [
           { userId: user._id },
@@ -172,7 +160,6 @@ router.get(
           p.onTheWallOf.toString() === user._id.toString(),
       );
 
-      // console.log({ posts });
 
       res.status(200).json(filteredPosts);
     } catch (err) {

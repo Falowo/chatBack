@@ -156,6 +156,7 @@ router.get(
       const user: User = await UserModel.findById(
         req.params.userId,
       );
+      
       const friends = await Promise.all(
         user.friends?.map((friendId) =>
           UserModel.findById(
@@ -164,6 +165,7 @@ router.get(
           ),
         ),
       );
+
       res.status(200).json(friends);
     } catch (err) {
       res.status(500).json(err);
@@ -388,7 +390,9 @@ router.put(
               { _id: user._id },
               {
                 $push: { friendRequestsFrom: req.user._id },
-                $inc: {notCheckedFriendRequestsNumber: +1}
+                $inc: {
+                  notCheckedFriendRequestsNumber: +1,
+                },
               },
               { new: true },
             );
@@ -429,7 +433,6 @@ router.put(
 
 // addFriend
 
-
 router.put(
   "/:id/addFriend",
   async (req: AppRequest, res: Response) => {
@@ -437,9 +440,7 @@ router.put(
       req.user._id.toString() !== req.params.id.toString()
     ) {
       try {
-        const userId = 
-          req.params.id
-        ;
+        const userId = req.params.id;
         const currentUser = await UserModel.findById(
           req.user._id,
         );
@@ -448,17 +449,18 @@ router.put(
             .map((f) => f.toString())
             .includes(userId)
         ) {
-          
-            await currentUser.updateOne(
-              {
-                $push: {
-                  friends: userId,
-                },
+          await currentUser.updateOne(
+            {
+              $push: {
+                friends: userId,
               },
-              { new: true },
-            );
+            },
+            { new: true },
+          );
 
-          res.status(200).json("one User has been added as friend");
+          res
+            .status(200)
+            .json("one User has been added as friend");
         } else {
           res
             .status(403)

@@ -6,6 +6,8 @@ import {
   ConversationModel,
   // UserModel,
 } from "../models/";
+import { Conversation } from "../models/Conversation";
+import { Message } from "../models/Message";
 
 //create a message
 
@@ -53,13 +55,13 @@ router.post("/", async (req: AppRequest, res: Response) => {
   }
 });
 
-// message received by a conversation Member
+// message received by currentUser
 
 router.put(
-  "/received",
+  "/receivedBy/currentUser",
   async (req: AppRequest, res: Response) => {
-    const { messageId, userId } = req.body;
-
+    const { messageId } = req.body;
+    const userId = req.user._id;
     try {
       const message = await MessageModel.findById(
         messageId,
@@ -107,9 +109,11 @@ router.put(
               receivedByIds,
             },
             { new: true },
-          );
+          ).populate("senderId");
 
-        res.status(200).json(updatedMessage);
+        res
+          .status(200)
+          .json({ updatedMessage, conversation });
       } else {
         res.status(400).json("Unauthorized opération");
       }
@@ -119,15 +123,19 @@ router.put(
   },
 );
 
-// all messages checked by a conversation Member
+// all messages of a conversation are checked by currentUser
 
 router.put(
-  "/checked",
+  "/checkedBy/currentUser",
   async (req: AppRequest, res: Response) => {
-    const { conversationId, userId } = req.body;
+    const { conversationId } = req.body;
+    const userId = req.user._id;
+    console.log(userId);
 
     try {
-      const messages = await MessageModel.find({
+      let haveBeenCheckedMessages: string[] = [];
+
+      const messages: Message[] = await MessageModel.find({
         conversationId,
         senderId: { $nin: [userId] },
         checkedByIds: { $nin: [userId] },
@@ -135,9 +143,8 @@ router.put(
 
       console.log({ messages });
 
-      const conversation = await ConversationModel.findById(
-        conversationId,
-      );
+      const conversation: Conversation =
+        await ConversationModel.findById(conversationId);
       let status: Number;
       for (const message of messages) {
         if (
@@ -190,19 +197,23 @@ router.put(
             status = message.status ? message.status : 20;
           }
 
-          // const updatedMessage =
-          await MessageModel.findByIdAndUpdate(
-            message._id,
-            {
-              status,
-              checkedByIds,
-            },
-            { new: true },
-          );
+          const updatedMessage =
+            await MessageModel.findByIdAndUpdate(
+              message._id,
+              {
+                status,
+                checkedByIds,
+              },
+              { new: true },
+            ).populate("senderId");
+
+          haveBeenCheckedMessages = [
+            ...(haveBeenCheckedMessages || []),
+            updatedMessage._id.toString(),
+          ];
         }
       }
-
-      res.status(200).json("messages.checked");
+      res.status(200).json(haveBeenCheckedMessages);
     } catch (error) {
       res.status(500).json(error);
     }
@@ -220,6 +231,64 @@ router.get(
       })
         .sort({ createdAt: -1 })
         .limit(1);
+      res.status(200).json(messages);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+);
+
+// get unchecked messages by current User for a conversationId
+
+router.get(
+  "/unchecked/currentUser/:conversationId",
+  async (req: AppRequest, res: Response) => {
+    const { conversationId } = req.params;
+    const currentUserId = req.user._id;
+
+    try {
+      const conversation = await ConversationModel.findById(
+        conversationId,
+      );
+
+      if (!!conversation.pendingMessagesIds.length) {
+      }
+      const pendingMessages = await Promise.all(
+        conversation.pendingMessagesIds.map((p) =>
+          MessageModel.findById(p),
+        ),
+      );
+
+      const currentUserUncheckedMessages: string[] =
+        pendingMessages
+          .filter(
+            (p) =>
+              !p.checkedByIds
+                .map((c) => c.toString())
+                .includes(currentUserId.toString()),
+          )
+          .map((p) => p._id.toString());
+      res.status(200).json(currentUserUncheckedMessages);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+);
+
+// get  messages array from messagesIds array
+
+router.post(
+  "/array/fromIds",
+  async (req: AppRequest, res: Response) => {
+    try {
+      const { messagesIds } = req.body;
+      const messages = await Promise.all(
+        messagesIds.map((mId) =>
+          MessageModel.findById(mId).populate({
+            path: "senderId",
+          }),
+        ),
+      );
       res.status(200).json(messages);
     } catch (error) {
       res.status(500).json(error);
