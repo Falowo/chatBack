@@ -247,30 +247,30 @@ router.get(
     const currentUserId = req.user._id;
 
     try {
-      const conversation = await ConversationModel.findById(
-        conversationId,
-      );
+      const messages = await MessageModel.find({
+        $and: [
+          { conversationId: conversationId },
+          { checkedByIds: { $nin: [currentUserId] } },
+          { senderId: { $nin: [currentUserId] } },
+        ],
+      });
+      // find not yet received and automatically receive
+      const notYetReceivedMessages =
+        await MessageModel.updateMany(
+          {
+            $and: [
+              { conversationId: conversationId },
+              { receivedByIds: { $nin: [currentUserId] } },
+              { senderId: { $nin: [currentUserId] } },
+            ],
+          },
+          { $push: { receivedByIds: currentUserId } },
+          { new: true },
+        );
 
-      if (!!conversation.pendingMessagesIds.length) {
-      }
-      const pendingMessages = await Promise.all(
-        conversation.pendingMessagesIds.map((p) =>
-          MessageModel.findById(p),
-        ),
-      );
+      console.log({notYetReceivedMessages});
 
-      const currentUserUncheckedMessages: string[] =
-        pendingMessages
-          .filter(
-            (p) =>
-              !p.checkedByIds
-                .map((c) => c.toString())
-                .includes(currentUserId.toString()) &&
-              p.senderId.toString() !==
-                currentUserId.toString(),
-          )
-          .map((p) => p._id.toString());
-      res.status(200).json(currentUserUncheckedMessages);
+      res.status(200).json(messages);
     } catch (error) {
       res.status(400).json(error);
     }
