@@ -265,7 +265,9 @@ router.get(
             (p) =>
               !p.checkedByIds
                 .map((c) => c.toString())
-                .includes(currentUserId.toString()),
+                .includes(currentUserId.toString()) &&
+              p.senderId.toString() !==
+                currentUserId.toString(),
           )
           .map((p) => p._id.toString());
       res.status(200).json(currentUserUncheckedMessages);
