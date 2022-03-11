@@ -45,9 +45,5 @@ export class Conversation {
     ref: () => Message,
   })
   public lastMessageId?: Ref<Message>;
-
-  @prop({
-    ref: () => Message,
-  })
-  public pendingMessagesIds?: Ref<Message>[];
+  
 }

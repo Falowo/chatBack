@@ -1,7 +1,11 @@
 import express, { Response } from "express";
 import { AppRequest } from "../config/jwt.config";
 const router = express.Router();
-import { ConversationModel, UserModel } from "../models/";
+import {
+  ConversationModel,
+  MessageModel,
+  UserModel,
+} from "../models/";
 
 //create a conversation
 
@@ -163,28 +167,43 @@ router.get(
 
 //get the conversations of the currentUser
 
-router.get(
-  "/",
-  async (req: AppRequest, res: Response) => {
+router.get("/", async (req: AppRequest, res: Response) => {
+  try {
+    const conversations = await ConversationModel.find({
+      membersId: { $in: req.user._id },
+    }).sort({ updatedAt: -1 });
 
-    try {
-      const conversations = await ConversationModel.find({
-        membersId: { $in: req.user._id },
-      }).sort({ updatedAt: -1 });
+    const populatedConversations = await Promise.all(
+      conversations.map(async (c) => {
+        if (!c.lastMessageId) {
+          const lastMessages = await MessageModel.find({
+            conversationId: c._id,
+          }).sort({ updatedAt: -1, limit: 1 });
+          const lastMessage = lastMessages[0];
 
-      const populatedConversations = await Promise.all(
-        conversations.map((c) =>
-          c.populate("lastMessageId"),
-        ),
-      );
-      // console.log({ populatedConversations });
+          if (!!lastMessage) {
+            const conversation =
+              await ConversationModel.findByIdAndUpdate(
+                c._id,
+                { lastMessageId: lastMessage._id },
+              );
+            return conversation.populate("lastMessageId");
+          } else {
+            await ConversationModel.findByIdAndDelete(
+              c._id,
+            );
+            return c;
+          }
+        } else return c.populate("lastMessageId");
+      }),
+    );
+    // console.log({ populatedConversations });
 
-      res.status(200).json(populatedConversations);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
-);
+    res.status(200).json(populatedConversations);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
 // add a member
 
@@ -270,15 +289,16 @@ router.put(
   "/removeMembers/:conversationId",
   async (req: AppRequest, res: Response) => {
     let e = 0;
-    const { leavingMembersId} = req.body;
+    const { leavingMembersId } = req.body;
     const { conversationId } = req.params;
-
 
     try {
       const conversation = await ConversationModel.findById(
         conversationId,
       );
-      const currentUser = await UserModel.findById(req.user._id);
+      const currentUser = await UserModel.findById(
+        req.user._id,
+      );
 
       if (
         !currentUser.isAdmin ||

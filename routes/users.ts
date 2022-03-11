@@ -1,7 +1,11 @@
 import express, { Response } from "express";
 import { AppRequest } from "../config/jwt.config";
 const router = express.Router();
-import { ConversationModel, UserModel } from "../models/";
+import {
+  ConversationModel,
+  MessageModel,
+  UserModel,
+} from "../models/";
 import { User } from "../models/User";
 const bcrypt = require("bcrypt");
 
@@ -117,31 +121,46 @@ router.get(
   "/best/currentUser/friends",
   async (req: AppRequest, res: Response) => {
     try {
-      // const currentUser: User = await UserModel.findById(
-      //   req.user._id,
-      // );
-
-      // let friends: User[] = [];
-
       const conversations = await ConversationModel.find(
         {
-          membersId: { $in: req.user._id },
+          $and: [
+            { membersId: { $in: [req.user._id] } },
+            { membersId: { $size: 2 } },
+          ],
         },
-        "membersId",
+        "membersId _id",
       ).sort({ updatedAt: -1 });
 
-      const filteredConversations = conversations.filter(
-        (c) => c.membersId?.length < 3,
+      const conversationAndUser: {
+        conversationId: string;
+        memberId: string;
+      }[] = conversations.flatMap((c) => ({
+        memberId: c.membersId
+          .map((mId) => mId.toString())
+          .filter(
+            (mId) => mId !== req.user._id.toString(),
+          )[0],
+        conversationId: c._id,
+      }));
+
+      const friendsAndMessagesNumber: {
+        friendId: string;
+        numberOfMessages: number;
+      }[] = await Promise.all(
+        conversationAndUser.map(async (c) => {
+          const numberOfMessages = await MessageModel.find({
+            conversationId: c.conversationId,
+          }).count();
+
+          return { friendId: c.memberId, numberOfMessages };
+        }),
       );
+      friendsAndMessagesNumber.sort((a, b) => {
+        return b.numberOfMessages - a.numberOfMessages;
+      });
 
-      const users: string[] = filteredConversations
-        .map((f) => [...f.membersId])
-        .flat()
-        .map((objId) => objId.toString());
 
-      const reducedUsers = Array.from(new Set(users));
-
-      res.status(200).json(reducedUsers);
+      res.status(200).json(friendsAndMessagesNumber);
     } catch (err) {
       res.status(500).json(err);
     }
@@ -156,7 +175,7 @@ router.get(
       const user: User = await UserModel.findById(
         req.params.userId,
       );
-      
+
       const friends = await Promise.all(
         user.friends?.map((friendId) =>
           UserModel.findById(
@@ -328,7 +347,7 @@ router.put(
   },
 );
 
-// sendFriend REquest
+// send aFriend REquest
 
 router.put(
   "/:id/friendRequest",

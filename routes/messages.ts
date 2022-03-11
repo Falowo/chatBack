@@ -34,18 +34,6 @@ router.post("/", async (req: AppRequest, res: Response) => {
         "senderId",
       );
 
-      const updatedConversation =
-        await ConversationModel.findByIdAndUpdate(
-          conversation._id,
-          {
-            lastMessageId: savedMessage._id,
-            $push: { pendingMessagesIds: savedMessage._id },
-          },
-          { new: true },
-        );
-
-      console.log({ updatedConversation });
-
       res.status(200).json(populatedMessage);
     } else {
       res.status(400).json("Unauthorized opération");
@@ -94,7 +82,8 @@ router.put(
                   mId !== message.senderId.toString(),
               ),
             receivedByIds.map((m) => m.toString()),
-          )
+          ) &&
+          message.status !== 40
         ) {
           status = 30;
         } else {
@@ -161,7 +150,7 @@ router.put(
             userId,
           ];
 
-          // change the message status and quit the message id from pendingMessagesIds (conversation)
+          // change the message status
 
           if (
             areEqual(
@@ -175,26 +164,8 @@ router.put(
             )
           ) {
             status = 40;
-
-            if (
-              !!conversation.pendingMessagesIds
-                .map((p) => p.toString())
-                .includes(message._id.toString())
-            ) {
-              const updatedConversation =
-                await ConversationModel.findByIdAndUpdate(
-                  conversation._id,
-                  {
-                    $pull: {
-                      pendingMessagesIds: message._id,
-                    },
-                  },
-                  { new: true },
-                );
-              console.log(updatedConversation);
-            }
           } else {
-            status = message.status ? message.status : 20;
+            status = message.status;
           }
 
           const updatedMessage =
@@ -231,7 +202,8 @@ router.get(
       })
         .sort({ createdAt: -1 })
         .limit(1);
-      res.status(200).json(messages);
+        const lastMessage = messages[0]
+      res.status(200).json(lastMessage);
     } catch (error) {
       res.status(500).json(error);
     }
@@ -268,7 +240,7 @@ router.get(
           { new: true },
         );
 
-      console.log({notYetReceivedMessages});
+      console.log({ notYetReceivedMessages });
 
       res.status(200).json(messages);
     } catch (error) {

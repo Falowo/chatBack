@@ -18,6 +18,8 @@ export const signup = async (
   const { username, email, password } = req.body;
   console.log({ username, email, password });
   const { error } = schema.validate(req.body);
+  console.log({error});
+  
   if (error) {
     console.log({ username });
     res.status(400).send(error.details[0].message);
@@ -47,9 +49,8 @@ export const signup = async (
 
         const token = createJwtToken(user);
 
-        req.login(user);
+        req.user = user;
         console.log("login function executed");
-        console.log(res.locals);
         res.status(200).json(token);
       }
     } catch (error) {
