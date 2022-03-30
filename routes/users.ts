@@ -159,7 +159,6 @@ router.get(
         return b.numberOfMessages - a.numberOfMessages;
       });
 
-
       res.status(200).json(friendsAndMessagesNumber);
     } catch (err) {
       res.status(500).json(err);
@@ -253,10 +252,8 @@ router.put(
       req.user._id.toString() !== req.params.id.toString()
     ) {
       try {
-        const user = await UserModel.findById(
-          req.params.id,
-        );
-        const currentUser = await UserModel.findById(
+        let user = await UserModel.findById(req.params.id);
+        let currentUser = await UserModel.findById(
           req.user._id,
         );
         if (
@@ -272,28 +269,54 @@ router.put(
               .map((f) => f.toString())
               .includes(user._id.toString())
           ) {
-            await user.updateOne({
-              $push: {
-                followersIds: req.user._id,
-                friends: req.user._id,
+            user = await UserModel.findByIdAndUpdate(
+              user._id,
+              {
+                $push: {
+                  followersIds: req.user._id,
+                  friends: req.user._id,
+                },
+                $pull: {
+                  friendRequestsFrom: req.user._id,
+                  friendRequestsTo: req.user._id,
+                  notCheckedFriendRequestsFrom:
+                    req.user._id,
+                },
               },
-            });
-            await currentUser.updateOne({
-              $push: {
-                followedIds: req.params.id,
-                friends: req.params.id,
+              { new: true },
+            );
+            currentUser = await UserModel.findByIdAndUpdate(
+              currentUser._id,
+              {
+                $push: {
+                  followedIds: req.params.id,
+                  friends: req.params.id,
+                },
+                $pull: {
+                  friendRequestsFrom: req.params.id,
+                  friendRequestsTo: req.params.id,
+                  notCheckedFriendRequestsFrom:
+                    req.params.id,
+                },
               },
-            });
+              { new: true },
+            );
           } else {
-            await user.updateOne({
-              $push: { followersIds: req.user._id },
-            });
-            await currentUser.updateOne({
-              $push: { followedIds: req.params.id },
-            });
+            user = await UserModel.findByIdAndUpdate(
+              user._id,
+              {
+                $push: { followersIds: req.user._id },
+              },
+            );
+            currentUser = await UserModel.findByIdAndUpdate(
+              currentUser.id,
+              {
+                $push: { followedIds: req.params.id },
+              },
+            );
           }
 
-          res.status(200).json("user has been followed");
+          res.status(200).json({ user, currentUser });
         } else {
           res
             .status(403)
@@ -317,10 +340,8 @@ router.put(
       req.user._id.toString() !== req.params.id.toString()
     ) {
       try {
-        const user = await UserModel.findById(
-          req.params.id,
-        );
-        const currentUser = await UserModel.findById(
+        let user = await UserModel.findById(req.params.id);
+        let currentUser = await UserModel.findById(
           req.user._id,
         );
         if (
@@ -328,13 +349,21 @@ router.put(
             .map((f) => f.toString())
             .includes(req.user._id.toString())
         ) {
-          await user.updateOne({
-            $pull: { followersIds: req.user._id },
-          });
-          await currentUser.updateOne({
-            $pull: { followedIds: req.params.id },
-          });
-          res.status(200).json("user has been unfollowed");
+          user = await UserModel.findByIdAndUpdate(
+            user._id,
+            {
+              $pull: { followersIds: req.user._id },
+            },
+            { new: true },
+          );
+          currentUser = await UserModel.findByIdAndUpdate(
+            currentUser._id,
+            {
+              $pull: { followedIds: req.params.id },
+            },
+            { new: true },
+          );
+          res.status(200).json({ user, currentUser });
         } else {
           res.status(403).json("you dont follow this user");
         }
@@ -347,44 +376,81 @@ router.put(
   },
 );
 
-// send aFriend REquest
+// get friendsrequestsFrom
+
+router.get(
+  "/friend/requests/from",
+  async (req: AppRequest, res: Response) => {
+    const currentUserId = req.user._id;
+    const currentUser = await UserModel.findById(
+      currentUserId,
+    );
+    try {
+      const users = await Promise.all(
+        currentUser.friendRequestsFrom?.map(async (fId) => {
+          const f = await UserModel.findById(fId);
+          const { _id, username, profilePicture } = f;
+          return {
+            _id,
+            username,
+            profilePicture,
+          };
+        }),
+      );
+      console.log({ friendRequestFrom: users });
+
+      res.status(200).json(users);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+);
+
+// send or accept friend request
 
 router.put(
   "/:id/friendRequest",
   async (req: AppRequest, res: Response) => {
+    // if the friend is not same as currentUser
     if (
       req.user._id.toString() !== req.params.id.toString()
     ) {
       try {
-        const user = await UserModel.findById(
-          req.params.id,
+        let user = await UserModel.findById(req.params.id);
+        let currentUser = await UserModel.findById(
+          req.user._id,
         );
-        const currentUser = req.user;
-        let updatedUser: User;
-        let updatedCurrentUser: User;
+        // if the user has not already been requested  as friend && user is not already friend
         if (
           !currentUser.friendRequestsTo
             .map((f) => f.toString())
-            .includes(user?._id!.toString()) ||
-          (currentUser.friendRequestsFrom
+            .includes(user?._id!.toString()) &&
+          !currentUser.friends
             .map((f) => f.toString())
-            .includes(user._id.toString()) &&
-            !currentUser.friends
-              .map((f) => f.toString())
-              .includes(user._id.toString()))
+            .includes(user?._id!.toString())
         ) {
+          console.log(
+            "the_user_has_not_already_been_requested_as_friend_&&_user_is_not__already_friend",
+          );
+
+          // if the user had send friendRequest to currentUser before
           if (
             currentUser.friendRequestsFrom
               .map((f) => f.toString())
-              .includes(user._id.toString()) &&
-            !currentUser.friends
-              .map((f) => f.toString())
               .includes(user._id.toString())
           ) {
-            updatedUser = await UserModel.findOneAndUpdate(
+            console.log(
+              "the_user_had send__friendRequest__to___currentUser___before",
+            );
+
+            user = await UserModel.findOneAndUpdate(
               { _id: user._id },
               {
-                $push: { friends: currentUser._id },
+                $push: {
+                  friends: currentUser._id,
+                  notCheckedAcceptedFriendRequestsBy:
+                    currentUser._id,
+                },
                 $pull: {
                   friendRequestsTo: currentUser._id,
                 },
@@ -393,45 +459,44 @@ router.put(
               { new: true },
             );
 
-            updatedCurrentUser =
-              await UserModel.findOneAndUpdate(
-                { _id: currentUser._id },
-                {
-                  $push: { friends: req.params.id },
-                  $pull: {
-                    friendRequestsFrom: req.params.id,
-                  },
-                },
-                { new: true },
-              );
-          } else {
-            updatedUser = await UserModel.findOneAndUpdate(
-              { _id: user._id },
+            currentUser = await UserModel.findOneAndUpdate(
+              { _id: currentUser._id },
               {
-                $push: { friendRequestsFrom: req.user._id },
-                $inc: {
-                  notCheckedFriendRequestsNumber: +1,
+                $push: { friends: req.params.id },
+                $pull: {
+                  friendRequestsFrom: req.params.id,
+                  notCheckedFriendRequestsFrom:
+                    req.params.id,
                 },
               },
               { new: true },
             );
-            updatedCurrentUser =
-              await UserModel.findOneAndUpdate(
-                { _id: currentUser._id },
-                {
-                  $push: {
-                    friendRequestsTo: req.params.id,
-                  },
+            console.log({ currentUser });
+          } else {
+            // just send friend request
+            user = await UserModel.findOneAndUpdate(
+              { _id: user._id },
+              {
+                $push: {
+                  friendRequestsFrom: req.user._id,
+                  notCheckedFriendRequestsFrom:
+                    req.user._id,
                 },
-                { new: true },
-              );
+              },
+              { new: true },
+            );
+            currentUser = await UserModel.findOneAndUpdate(
+              { _id: currentUser._id },
+              {
+                $push: {
+                  friendRequestsTo: req.params.id,
+                },
+              },
+              { new: true },
+            );
           }
 
-          !!updatedUser &&
-            !!updatedCurrentUser &&
-            res
-              .status(200)
-              .json({ updatedUser, updatedCurrentUser });
+          res.status(200).json({ user, currentUser });
         } else {
           res
             .status(403)
@@ -450,6 +515,25 @@ router.put(
   },
 );
 
+// checkFriendRequests
+router.put(
+  "/currentUser/checkFriendRequests",
+  async (req: AppRequest, res: Response) => {
+    const currentUserId = req.user._id;
+    try {
+      const updatedCurrentUser =
+        await UserModel.findByIdAndUpdate(
+          currentUserId,
+          { notCheckedFriendRequestsFrom: [] },
+          { new: true },
+        );
+      res.status(200).json(updatedCurrentUser);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+);
+
 // addFriend
 
 router.put(
@@ -460,7 +544,7 @@ router.put(
     ) {
       try {
         const userId = req.params.id;
-        const currentUser = await UserModel.findById(
+        let currentUser = await UserModel.findById(
           req.user._id,
         );
         if (
@@ -468,18 +552,22 @@ router.put(
             .map((f) => f.toString())
             .includes(userId)
         ) {
-          await currentUser.updateOne(
+          currentUser = await UserModel.findByIdAndUpdate(
+            currentUser._id,
             {
               $push: {
                 friends: userId,
+              },
+              $pull: {
+                friendRequestsFrom: userId,
+                notCheckedFriendRequestsFrom: userId,
+                friendRequestsTo: userId,
               },
             },
             { new: true },
           );
 
-          res
-            .status(200)
-            .json("one User has been added as friend");
+          res.status(200).json(currentUser);
         } else {
           res
             .status(403)
