@@ -533,6 +533,24 @@ router.put(
     }
   },
 );
+// checkAcceptedFriendRequests
+router.put(
+  "/currentUser/checkAcceptedFriendRequests",
+  async (req: AppRequest, res: Response) => {
+    const currentUserId = req.user._id;
+    try {
+      const updatedCurrentUser =
+        await UserModel.findByIdAndUpdate(
+          currentUserId,
+          { notCheckedAcceptedFriendRequestsBy: [] },
+          { new: true },
+        );
+      res.status(200).json(updatedCurrentUser);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+);
 
 // addFriend
 
