@@ -34,6 +34,10 @@ router.post("/", async (req: AppRequest, res: Response) => {
         "senderId",
       );
 
+      await conversation.update({
+        lastMessageId: savedMessage._id,
+      });
+
       res.status(200).json(populatedMessage);
     } else {
       res.status(400).json("Unauthorized opération");
@@ -202,7 +206,7 @@ router.get(
       })
         .sort({ createdAt: -1 })
         .limit(1);
-        const lastMessage = messages[0]
+      const lastMessage = messages[0];
       res.status(200).json(lastMessage);
     } catch (error) {
       res.status(500).json(error);

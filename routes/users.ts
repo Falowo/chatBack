@@ -7,9 +7,11 @@ import {
   UserModel,
 } from "../models/";
 import { User } from "../models/User";
-const bcrypt = require("bcrypt");
+import bcrypt from "bcrypt";
+import fs from "fs-extra";
+import path from "path";
 
-//update user
+//update user sensitive data
 router.put(
   "/:id",
   async (req: AppRequest, res: Response) => {
@@ -596,6 +598,130 @@ router.put(
       }
     } else {
       res.status(403).json("you cant friend yourself");
+    }
+  },
+);
+
+// edit profile picture
+router.put(
+  "/currentUser/editProfilePicture",
+  async (req: AppRequest, res: Response) => {
+    const { fileName } = req.body;
+
+    try {
+      let currentUser = await UserModel.findById(
+        req.user._id,
+      );
+
+      const oldFileName = currentUser.profilePicture;
+
+      currentUser = await UserModel.findByIdAndUpdate(
+        currentUser._id,
+        {
+          profilePicture: fileName,
+        },
+        { new: true },
+      );
+
+      await fs.remove(
+        path.join(
+          __dirname,
+          `../public/images/${oldFileName}`,
+        ),
+      );
+      console.log({ oldFileName });
+
+      res.status(200).json(currentUser);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+);
+// edit cover picture
+router.put(
+  "/currentUser/editCoverPicture",
+  async (req: AppRequest, res: Response) => {
+    const { fileName } = req.body;
+
+    try {
+      let currentUser = await UserModel.findById(
+        req.user._id,
+      );
+
+      const oldFileName = currentUser.coverPicture;
+
+      currentUser = await UserModel.findByIdAndUpdate(
+        currentUser._id,
+        {
+          coverPicture: fileName,
+        },
+        { new: true },
+      );
+
+      !!oldFileName &&
+        (await fs.remove(
+          path.join(
+            __dirname,
+            `../public/images/${oldFileName}`,
+          ),
+        ));
+      console.log({ oldFileName });
+
+      res.status(200).json(currentUser);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+);
+// update currentUser info
+router.put(
+  "/currentUser/updateInfo",
+  async (req: AppRequest, res: Response) => {
+    const { city, from, relationship } = req.body.toUpdateUserInfo;
+    try {
+      let currentUser = await UserModel.findById(
+        req.user._id,
+      );
+
+      currentUser = await UserModel.findByIdAndUpdate(
+        currentUser._id,
+        {
+          city,
+          from,
+          relationship,
+        },
+        { new: true },
+      );
+
+      res.status(200).json(currentUser);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+);
+
+// update currentUser desc
+router.put(
+  "/currentUser/updateDesc",
+  async (req: AppRequest, res: Response) => {
+    const { desc } = req.body.toUpdateUserDesc;
+
+    try {
+      let currentUser = await UserModel.findById(
+        req.user._id,
+      );
+
+      currentUser = await UserModel.findByIdAndUpdate(
+        currentUser._id,
+        {
+          desc,
+        },
+        { new: true },
+      );
+
+      res.status(200).json(currentUser);
+    } catch (err) {
+      res.status(500).json(err);
     }
   },
 );

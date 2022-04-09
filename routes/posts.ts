@@ -60,17 +60,22 @@ router.delete(
 router.put(
   "/:id/like",
   async (req: AppRequest, res: Response) => {
-    const { likerId } = req.body;
+    const currentUserId = req.user._id;
+    const postId = req.params.id;
     try {
-      const post = await PostModel.findById(req.params.id);
-      if (!post.likersId?.includes(req.body.userId)) {
+      const post = await PostModel.findById(postId);
+      if (
+        !post.likersId
+          ?.map((l) => l.toString())
+          .includes(currentUserId.toString())
+      ) {
         await post.updateOne({
-          $push: { likersId: likerId },
+          $push: { likersId: currentUserId },
         });
         res.status(200).json("The post has been liked");
       } else {
         await post.updateOne({
-          $pull: { likersId: likerId },
+          $pull: { likersId: currentUserId },
         });
         res.status(200).json("The post has been disliked");
       }
@@ -85,7 +90,6 @@ router.put(
 router.get(
   "/timeline/currentUser",
   async (req: AppRequest, res: Response) => {
-
     try {
       const currentUser = await UserModel.findById(
         req.user._id,
@@ -118,7 +122,6 @@ router.get(
             p.onTheWallOf.toString() ===
               currentUser._id.toString(),
         );
-
 
       const timeline = (currentUserPosts || []).concat(
         flatFriendsPosts,
@@ -159,7 +162,6 @@ router.get(
           !p.onTheWallOf ||
           p.onTheWallOf.toString() === user._id.toString(),
       );
-
 
       res.status(200).json(filteredPosts);
     } catch (err) {

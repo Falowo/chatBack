@@ -111,7 +111,7 @@ export class User {
   @prop({
     enum: [1, 2, 3],
   })
-  public relationShip?: Number;
+  public relationship?: Number;
 
   @prop()
     public birthDate?: Date;
