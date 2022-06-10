@@ -1,31 +1,38 @@
-import express, {  Response } from "express";
-import mongoose from "mongoose";
+
 import dotenv from "dotenv";
+import express, { Response } from "express";
+import mongoose from "mongoose";
 import cors from "cors";
 import path from "path";
 import morgan from "morgan";
 import index from "./routes/index";
 import multer from "multer";
-dotenv.config();
+import { AppRequest } from "./config/jwt.config";
 
 const app = express();
+dotenv.config();
+const connection_string = process.env.CONNECTION_STRING;
+const port = process.env.PORT || 8800;
 
-
-
+if (process.env.NODE_ENV === "development") {
+  app.use(cors({ origin: "http://localhost:3000" }));
+} else if (process.env.NODE_ENV === "production") {
+  app.use(cors({ origin: "http://localhost:3000" }));
+}
 app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 
-app.use(morgan("dev"));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+  console.log(process.env.NODE_ENV);
+} else if (process.env.NODE_ENV === "production") {
+  console.log(process.env.NODE_ENV);
+}
 
 app.use(
   "/images",
-  express.static(path.join(__dirname, "/public/images")),
+  express.static(path.join(__dirname, "../public/images")),
 );
-
-import {
-  AppRequest,
-} from "./config/jwt.config";
-
 
 const storage = multer.diskStorage({
   destination: (
@@ -33,7 +40,7 @@ const storage = multer.diskStorage({
     _file: Express.Multer.File,
     callback: (error: Error, destination: string) => void,
   ) => {
-    callback(null, path.join(__dirname, "/public/images"));
+    callback(null, path.join(__dirname, "../public/images"));
   },
   filename: (
     req: AppRequest,
@@ -44,7 +51,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 app.post(
   "/api/upload",
   upload.single("file"),
@@ -59,20 +66,23 @@ app.post(
 
 app.use("/api/", index);
 
-const connection_string = process.env.CONNECTION_STRING;
-const port = process.env.PORT || 8800;
-
-app.listen(port, () => {
+export const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+import { InitSocketServer } from "./config/socket.io.config/";
 
 mongoose
   .connect(connection_string)
   .then(() => {
     console.log("MongoDB Connected");
+    console.log(process.env.NODE_ENV);
+    console.log(process.env.URL);
   })
   .catch((error) => {
     console.error(
       `connection MongoDb failed : error : ${error}`,
     );
   });
+
+InitSocketServer();

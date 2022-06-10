@@ -1,0 +1,1 @@
+{"version":3,"file":"security.config.js","sourceRoot":"","sources":["../../config/security.config.ts"],"names":[],"mappings":";;;AAGO,MAAM,mBAAmB,GAAG,CACjC,GAAe,EACf,GAAa,EACb,IAAkB,EAClB,EAAE;IACF,IAAI,GAAG,CAAC,eAAe,EAAE,EAAE;QACzB,IAAI,EAAE,CAAC;KACR;SAAM;QACL,GAAG,CAAC,MAAM,CAAC,GAAG,CAAC,CAAC,IAAI,CAAC,wBAAwB,CAAC,CAAC;KAChD;AACH,CAAC,CAAC;AAVW,QAAA,mBAAmB,uBAU9B"}
