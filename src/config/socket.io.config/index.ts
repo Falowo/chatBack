@@ -51,7 +51,7 @@ export const InitSocketServer = () => {
 
   //  connection
   io.on("connection", (socket) => {
-    console.log("a user connected");
+    console.log("a user connected to socket");
 
     // take userId and socketId from user
     socket.on("addUser", (userId: string) => {

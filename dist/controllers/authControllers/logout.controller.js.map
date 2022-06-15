@@ -1,1 +1,0 @@
-{"version":3,"file":"logout.controller.js","sourceRoot":"","sources":["../../../controllers/authControllers/logout.controller.ts"],"names":[],"mappings":";;;AAEO,MAAM,MAAM,GAAG,CACpB,GAAe,EACf,IAAc,EACd,IAAkB,EAClB,EAAE;IACF,GAAG,CAAC,KAAK,GAAG,IAAI,CAAC;IACjB,GAAG,CAAC,IAAI,GAAG,IAAI,CAAC;IAChB,IAAI,EAAE,CAAC;AACT,CAAC,CAAC;AARW,QAAA,MAAM,UAQjB"}

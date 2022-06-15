@@ -12,3 +12,8 @@
 **/*.png
 **/*.jpeg
 **/*.jpg
+
+
+# prod
+
+/dist/

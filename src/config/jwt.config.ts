@@ -79,16 +79,22 @@ export const extractUserFromToken = async (
         ignoreExpiration: true,
       });
       let payload: Payload = jwtDecode(token);
+      console.log({ payloadFromToken: payload });
 
       try {
         const refreshedToken =
           checkIfTokenNotExpired(payload);
-        // console.log({ refreshedToken });
+        console.log({ refreshedToken });
 
         if (typeof refreshedToken === "string") {
           if (!!tokenSentFromBodyToRefresh) {
             req.user = payload.user;
+            
             req.token = refreshedToken;
+            console.log({reqUser: req.user});
+            console.log({reqToken: req.token});
+
+            
             res.status(200).json(refreshedToken);
           } else {
             req.user = payload.user;
@@ -125,7 +131,6 @@ export const addJwtFeatures = (
   _res: Response,
   next: NextFunction,
 ) => {
-
   req.isAuthenticated = () => !!req.user;
   req.logout = () => {
     req.user = null;

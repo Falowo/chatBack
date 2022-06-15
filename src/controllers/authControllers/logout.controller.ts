@@ -1,11 +1,10 @@
-import { NextFunction, Response } from "express";
+import {  Response } from "express";
 import { AppRequest } from "../../config/jwt.config";
 export const logout = (
   req: AppRequest,
-  _res: Response,
-  next: NextFunction,
+  res: Response,
 ) => {
-  req.token = null;
-  req.user = null;
-  next();
+  req.token = undefined;
+  req.user = undefined;
+  res.status(200).json(req.user);
 };

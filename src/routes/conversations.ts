@@ -167,12 +167,17 @@ router.get(
 
 //get the conversations of the currentUser
 
-router.get("/", async (req: AppRequest, res: Response) => {
+router.get("/allOfUser", async (req: AppRequest, res: Response) => {
   try {
+    const useur =req.user;
+    console.log({useur});
+    
     const conversations = await ConversationModel.find({
       membersId: { $in: req.user._id },
     }).sort({ updatedAt: -1 });
-
+    const conversMembersId= conversations.map(c=>c.membersId)
+      console.log({conversMembersId});
+      
     const populatedConversations = await Promise.all(
       conversations.map(async (c) => {
         if (!c.lastMessageId) {
