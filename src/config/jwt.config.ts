@@ -70,8 +70,10 @@ export const extractUserFromToken = async (
 ) => {
   let token: string = req.header("x-auth-token");
   const { oldToken } = req.body;
+  console.log({ tokenfromHeader: token });
   let tokenSentFromBodyToRefresh: boolean =
     oldToken === token;
+  console.log({ tokenSentFromBodyToRefresh });
 
   if (!!token) {
     try {
@@ -89,12 +91,11 @@ export const extractUserFromToken = async (
         if (typeof refreshedToken === "string") {
           if (!!tokenSentFromBodyToRefresh) {
             req.user = payload.user;
-            
-            req.token = refreshedToken;
-            console.log({reqUser: req.user});
-            console.log({reqToken: req.token});
 
-            
+            req.token = refreshedToken;
+            console.log({ reqUser: req.user });
+            console.log({ reqToken: req.token });
+
             res.status(200).json(refreshedToken);
           } else {
             req.user = payload.user;

@@ -9,9 +9,9 @@
 
 # images
 
-**/*.png
-**/*.jpeg
-**/*.jpg
+# **/*.png
+# **/*.jpeg
+# **/*.jpg
 
 
 # prod

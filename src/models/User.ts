@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import validator from "validator";
 import bcrypt from "bcrypt";
 
 import {
@@ -15,8 +15,8 @@ import {
 })
 export class User {
   public _id?: mongoose.Schema.Types.ObjectId;
-  public createdAt?:Date;
-  public updatedAt?:Date;
+  public createdAt?: Date;
+  public updatedAt?: Date;
 
   @prop({
     require: true,
@@ -30,6 +30,12 @@ export class User {
     required: true,
     maxlength: 50,
     unique: true,
+    validate: {
+      validator: (v) => {
+        return validator.isEmail(v);
+      },
+      message: "Invalid email.",
+    },
   })
   public email: String;
 
@@ -65,13 +71,10 @@ export class User {
   })
   public notCheckedFriendRequestsFrom?: Ref<User>[];
 
-  
   @prop({
     ref: () => User,
   })
   public notCheckedAcceptedFriendRequestsBy?: Ref<User>[];
-
-  
 
   @prop({
     ref: () => User,
@@ -114,9 +117,7 @@ export class User {
   public relationship?: Number;
 
   @prop()
-    public birthDate?: Date;
-
-  
+  public birthDate?: Date;
 
   static async hashPassword(password) {
     try {
@@ -131,4 +132,3 @@ export class User {
     return bcrypt.compare(password, this.password);
   }
 }
-

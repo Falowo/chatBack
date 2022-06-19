@@ -19,7 +19,6 @@ router.post("/", async (req: AppRequest, res: Response) => {
       receiversId.map((r) => UserModel.findById(r)),
     );
     if (receivers.includes(null)) {
-      // console.log({ receivers });
       res
         .status(400)
         .json("you are trying an unauthorized operation !");
@@ -139,6 +138,7 @@ router.get(
       );
       res.status(200).json(post);
     } catch (err) {
+      console.log(err);
       res.status(500).json(err);
     }
   },
@@ -167,48 +167,45 @@ router.get(
 
 //get the conversations of the currentUser
 
-router.get("/allOfUser", async (req: AppRequest, res: Response) => {
-  try {
-    const useur =req.user;
-    console.log({useur});
-    
-    const conversations = await ConversationModel.find({
-      membersId: { $in: req.user._id },
-    }).sort({ updatedAt: -1 });
-    const conversMembersId= conversations.map(c=>c.membersId)
-      console.log({conversMembersId});
-      
-    const populatedConversations = await Promise.all(
-      conversations.map(async (c) => {
-        if (!c.lastMessageId) {
-          const lastMessages = await MessageModel.find({
-            conversationId: c._id,
-          }).sort({ updatedAt: -1, limit: 1 });
-          const lastMessage = lastMessages[0];
+router.get(
+  "/allOfUser",
+  async (req: AppRequest, res: Response) => {
+    try {
+      const conversations = await ConversationModel.find({
+        membersId: { $in: req.user._id },
+      }).sort({ updatedAt: -1 });
 
-          if (!!lastMessage) {
-            const conversation =
-              await ConversationModel.findByIdAndUpdate(
+      const populatedConversations = await Promise.all(
+        conversations.map(async (c) => {
+          if (!c.lastMessageId) {
+            const lastMessages = await MessageModel.find({
+              conversationId: c._id,
+            }).sort({ updatedAt: -1, limit: 1 });
+            const lastMessage = lastMessages[0];
+
+            if (!!lastMessage) {
+              const conversation =
+                await ConversationModel.findByIdAndUpdate(
+                  c._id,
+                  { lastMessageId: lastMessage._id },
+                );
+              return conversation.populate("lastMessageId");
+            } else {
+              await ConversationModel.findByIdAndDelete(
                 c._id,
-                { lastMessageId: lastMessage._id },
               );
-            return conversation.populate("lastMessageId");
-          } else {
-            await ConversationModel.findByIdAndDelete(
-              c._id,
-            );
-            return c;
-          }
-        } else return c.populate("lastMessageId");
-      }),
-    );
-    // console.log({ populatedConversations });
+              return c;
+            }
+          } else return c.populate("lastMessageId");
+        }),
+      );
 
-    res.status(200).json(populatedConversations);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+      res.status(200).json(populatedConversations);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+);
 
 // add a member
 
@@ -222,17 +219,12 @@ router.put(
       const conversation = await ConversationModel.findById(
         conversationId,
       );
-      // console.log(conversation);
 
       const inviter = await UserModel.findById(inviterId);
-
-      // console.log(inviter);
 
       const newMembers = await Promise.all(
         newMembersId.map((n) => UserModel.findById(n)),
       );
-
-      // console.log({ newMembers });
 
       if (
         !conversation ||
@@ -335,7 +327,6 @@ router.put(
             UserModel.findById(l),
           ),
         );
-        // console.log({ leavingMembers });
 
         if (
           !conversation ||
@@ -367,7 +358,6 @@ router.put(
               (m) =>
                 !leavingMembersId.includes(m.toString()),
             );
-          // console.log({ updatedMembersId });
           const c =
             await ConversationModel.findByIdAndUpdate(
               conversationId,
