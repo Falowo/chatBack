@@ -57,7 +57,7 @@ export const InitSocketServer = () => {
     },
   });
 
-  //  connection
+  //  connection lol
   io.on("connection", (socket) => {
     console.log("a user connected to socket");
 
