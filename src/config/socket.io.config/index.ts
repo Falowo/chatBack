@@ -43,9 +43,17 @@ export const InitSocketServer = () => {
     users = users.filter((u) => u.socketId !== socketId);
   };
 
+  // io = new Server(server, {
+  //   cors: {
+  //     origin: ["http://localhost:3000"],
+  //   },
+  // });
+
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000"],
+      origin: [
+        "https://astonishing-naiad-20ad9f.netlify.app/",
+      ],
     },
   });
 

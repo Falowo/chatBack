@@ -17,9 +17,9 @@ const port = process.env.PORT || 8800;
 if (process.env.NODE_ENV === "development") {
   app.use(cors({ origin: "http://localhost:3000" }));
 } else if (process.env.NODE_ENV === "production") {
-  app.use(cors({ origin: "http://localhost:3000" }));
+  app.use(cors({origin: "https://astonishing-naiad-20ad9f.netlify.app/"}));
 }
-app.use(cors({ origin: "http://localhost:3000" }));
+
 app.use(express.json());
 
 if (process.env.NODE_ENV === "development") {
