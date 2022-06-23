@@ -49,14 +49,15 @@ export const InitSocketServer = () => {
   //   },
   // });
 
-  io = new Server(server, {
-    cors: {
-      origin: [
-        "https://astonishing-naiad-20ad9f.netlify.app",
-      ],
-    },
-  });
-
+  // io = new Server(server, {
+  //   cors: {
+  //     origin: [
+  //       "https://astonishing-naiad-20ad9f.netlify.app",
+  //     ],
+  //   },
+  // });
+  io = new Server(server);
+  
   //  connection lol
   io.on("connection", (socket) => {
     console.log("a user connected to socket");
