@@ -1,5 +1,5 @@
 
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import express, { Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -10,16 +10,25 @@ import multer from "multer";
 import { AppRequest } from "./config/jwt.config";
 
 const app = express();
-dotenv.config();
+// dotenv.config();
 const connection_string = process.env.CONNECTION_STRING;
 const port = process.env.PORT || 8800;
 
 if (process.env.NODE_ENV === "development") {
-  app.use(cors({ origin: "http://localhost:3000" }));
+  app.use(cors());
+  console.log("process.env.NODE_ENV === 'development'");
+  
 } else if (process.env.NODE_ENV === "production") {
-  // app.use(cors({origin: "https://astonishing-naiad-20ad9f.netlify.app"}));
+  console.log("process.env.NODE_ENV === 'production'");
+
+  // app.use(cors({origin: process.env.URL}));
   app.use(cors());
 
+}else{
+  console.log("process.env.NODE_ENV === 'production'");
+
+  // app.use(cors({origin: process.env.URL}));
+  app.use(cors());
 }
 
 app.use(express.json());
