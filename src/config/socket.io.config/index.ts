@@ -52,7 +52,7 @@ export const InitSocketServer = () => {
   io = new Server(server, {
     cors: {
       origin: [
-        "https://astonishing-naiad-20ad9f.netlify.app/",
+        "https://astonishing-naiad-20ad9f.netlify.app",
       ],
     },
   });
