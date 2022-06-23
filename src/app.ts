@@ -8,6 +8,7 @@ import morgan from "morgan";
 import index from "./routes/index";
 import multer from "multer";
 import { AppRequest } from "./config/jwt.config";
+import { InitSocketServer } from "./config/socket.io.config/";
 
 const app = express();
 // dotenv.config();
@@ -36,11 +37,16 @@ app.use(express.json());
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
-  console.log(process.env.NODE_ENV);
-} else if (process.env.NODE_ENV === "production") {
-  console.log(process.env.NODE_ENV);
+  // console.log(process.env.NODE_ENV);
 }
+// else if (process.env.NODE_ENV === "production") {
+//   console.log(process.env.NODE_ENV);
+// }
 
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "../../public/images")),
+);
 app.use(
   "/images",
   express.static(path.join(__dirname, "../public/images")),
@@ -82,14 +88,14 @@ export const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-import { InitSocketServer } from "./config/socket.io.config/";
 
 mongoose
   .connect(connection_string)
   .then(() => {
-    console.log("MongoDB Connected");
-    console.log(process.env.NODE_ENV);
-    console.log(process.env.URL);
+    InitSocketServer();
+    // console.log("MongoDB Connected");
+    // console.log(process.env.NODE_ENV);
+    // console.log(process.env.URL);
   })
   .catch((error) => {
     console.error(
@@ -97,4 +103,3 @@ mongoose
     );
   });
 
-InitSocketServer();
