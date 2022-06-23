@@ -14,22 +14,23 @@ const app = express();
 const connection_string = process.env.CONNECTION_STRING;
 const port = process.env.PORT || 8800;
 
-if (process.env.NODE_ENV === "development") {
-  app.use(cors());
-  console.log("process.env.NODE_ENV === 'development'");
+// if (process.env.NODE_ENV === "development") {
+//   app.use(cors());
+//   console.log("process.env.NODE_ENV === 'development'");
   
-} else if (process.env.NODE_ENV === "production") {
-  console.log("process.env.NODE_ENV === 'production'");
+// } else if (process.env.NODE_ENV === "production") {
+//   console.log("process.env.NODE_ENV === 'production'");
 
-  // app.use(cors({origin: process.env.URL}));
-  app.use(cors());
+//   // app.use(cors({origin: process.env.URL}));
+//   app.use(cors());
 
-}else{
-  console.log("process.env.NODE_ENV === 'production'");
+// }else{
+//   console.log("process.env.NODE_ENV === 'production'");
 
-  // app.use(cors({origin: process.env.URL}));
-  app.use(cors());
-}
+//   // app.use(cors({origin: process.env.URL}));
+//   app.use(cors());
+// }
+app.use(cors());
 
 app.use(express.json());
 
