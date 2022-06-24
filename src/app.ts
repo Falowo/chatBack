@@ -12,7 +12,7 @@ import { InitSocketServer } from "./config/socket.io.config/";
 
 const app = express();
 // dotenv.config();
-const connection_string = process.env.CONNECTION_STRING;
+const uri = process.env.MONGODB_URI;
 const port = process.env.PORT || 8800;
 
 // if (process.env.NODE_ENV === "development") {
@@ -22,7 +22,7 @@ const port = process.env.PORT || 8800;
 // } else if (process.env.NODE_ENV === "production") {
 //   console.log("process.env.NODE_ENV === 'production'");
 
-//   // app.use(cors({origin: process.env.URL}));
+  // app.use(cors({origin: process.env.URL}));
 //   app.use(cors());
 
 // }else{
@@ -90,7 +90,7 @@ export const server = app.listen(port, () => {
 
 
 mongoose
-  .connect(connection_string)
+  .connect(uri)
   .then(() => {
     InitSocketServer();
     // console.log("MongoDB Connected");
