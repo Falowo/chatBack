@@ -55,12 +55,6 @@ app.use(
   express.static(path.join(__dirname, "../public/images")),
 );
 
-app.use(
-  "/images",
-  express.static(
-    path.join(__dirname, "../../public/images"),
-  ),
-);
 const storage = multer.diskStorage({
   destination: (
     _req: AppRequest,
