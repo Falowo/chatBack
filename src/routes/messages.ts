@@ -5,9 +5,9 @@ import {
   MessageModel,
   ConversationModel,
   // UserModel,
-} from "../models/";
-import { Conversation } from "../models/Conversation";
-import { Message } from "../models/Message";
+} from "../database/models";
+import { Conversation } from "../database/models/Conversation";
+import { Message } from "../database/models/Message";
 
 //create a message
 

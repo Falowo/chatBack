@@ -1,8 +1,8 @@
 import express, { Response } from "express";
 import { AppRequest } from "../config/jwt.config";
 const router = express.Router();
-import { PostModel, UserModel } from "../models/";
-import { Post } from "../models/Post";
+import { PostModel, UserModel } from "../database/models";
+import { Post } from "../database/models/Post";
 
 //create a post
 

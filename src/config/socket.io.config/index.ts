@@ -56,8 +56,15 @@ export const InitSocketServer = () => {
   //     ],
   //   },
   // });
-  io = new Server(server);
-  
+  io = new Server(server, {
+    cors: {
+      origin: [
+        "https://astonishing-naiad-20ad9f.netlify.app",
+        "http://localhost:3000",
+      ],
+    },
+  });
+
   //  connection lol
   io.on("connection", (socket) => {
     console.log("a user connected to socket");
@@ -190,4 +197,4 @@ export const InitSocketServer = () => {
   });
 };
 
-// initSocketServer();
+InitSocketServer();

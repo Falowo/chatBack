@@ -5,7 +5,7 @@ import {
   ConversationModel,
   MessageModel,
   UserModel,
-} from "../models/";
+} from "../database/models";
 
 //create a conversation
 

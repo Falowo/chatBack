@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import jwtDecode from "jwt-decode";
 import { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
-import { User } from "../models/User";
+import { User } from "../database/models/User";
 dotenv.config();
 const secret = process.env.SECRET_KEY;
 // const userBan = ['12341234'];

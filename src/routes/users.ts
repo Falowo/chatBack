@@ -5,8 +5,8 @@ import {
   ConversationModel,
   MessageModel,
   UserModel,
-} from "../models/";
-import { User } from "../models/User";
+} from "../database/models";
+import { User } from "../database/models/User";
 import bcrypt from "bcrypt";
 import fs from "fs-extra";
 import path from "path";

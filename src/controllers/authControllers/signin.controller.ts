@@ -2,7 +2,7 @@ import Joi from "joi";
 import { createJwtToken } from "../../config/jwt.config";
 import { Response } from "express";
 import { AppRequest } from "../../config/jwt.config";
-import { UserModel } from "../../models";
+import { UserModel } from "../../database/models";
 
 const schema = Joi.object({
   email: Joi.string().min(3).max(200).email().required(),

@@ -2,8 +2,8 @@ import Joi from "joi";
 import { createJwtToken } from "../../config/jwt.config";
 import { Response } from "express";
 import { AppRequest } from "../../config/jwt.config";
-import { User } from "../../models/User";
-import { UserModel } from "../../models/";
+import { User } from "../../database/models/User";
+import { UserModel } from "../../database/models";
 
 const schema = Joi.object({
   username: Joi.string().min(3).max(30).required(),
