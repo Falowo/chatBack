@@ -1,4 +1,4 @@
-// import dotenv from "dotenv";
+import dotenv from "dotenv";
 import express, { Response } from "express";
 // import mongoose from "mongoose";
 import "./database";
@@ -41,6 +41,8 @@ app.use(express.json());
 import "./config/socket.io.config/";
 
 if (process.env.NODE_ENV === "development") {
+  dotenv.config();
+
   app.use(morgan("dev"));
   // console.log(process.env.NODE_ENV);
 }
@@ -50,15 +52,15 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(
   "/images",
+  express.static(path.join(__dirname, "../public/images")),
+);
+
+app.use(
+  "/images",
   express.static(
     path.join(__dirname, "../../public/images"),
   ),
 );
-app.use(
-  "/images",
-  express.static(path.join(__dirname, "../public/images")),
-);
-
 const storage = multer.diskStorage({
   destination: (
     _req: AppRequest,
