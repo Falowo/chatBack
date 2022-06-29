@@ -3,9 +3,7 @@
 
 # misc
 .env
-.env.development
-.env.production
-
+.env.*
 
 # images
 
