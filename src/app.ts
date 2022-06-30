@@ -18,7 +18,7 @@ if (process.env.NODE_ENV !== "production") {
   app.use(
     cors({
       origin:[
-        " https://astonishing-naiad-20ad9f.netlify.app",
+        "https://astonishing-naiad-20ad9f.netlify.app",
       ]
     }),
   );
