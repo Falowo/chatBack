@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import express, { Response } from "express";
 // import mongoose from "mongoose";
 import "./database";
@@ -10,38 +9,26 @@ import multer from "multer";
 import { AppRequest } from "./config/jwt.config";
 
 export const app = express();
-// dotenv.config();
-// const uri = process.env.MONGODB_URI;
 const port = process.env.PORT || 8800;
 export const server = app.listen(port);
 
-// console.log("MongoDB Connected");
-// console.log(process.env.NODE_ENV);
-// console.log(process.env.URL);
-
-// if (process.env.NODE_ENV === "development") {
-//   app.use(cors());
-//   console.log("process.env.NODE_ENV === 'development'");
-
-// } else if (process.env.NODE_ENV === "production") {
-//   console.log("process.env.NODE_ENV === 'production'");
-
-// app.use(cors({origin: process.env.URL}));
-
-// }else{
-//   console.log("process.env.NODE_ENV === 'production'");
-
-//   // app.use(cors({origin: process.env.URL}));
-//   app.use(cors());
-// }
-app.use(cors());
-
+if (process.env.NODE_ENV !== "production") {
+  app.use(cors());
+} else {
+  app.use(
+    cors({
+      origin:[
+        " https://astonishing-naiad-20ad9f.netlify.app",
+      ]
+    }),
+  );
+}
 app.use(express.json());
 
 import "./config/socket.io.config/";
 
-if (process.env.NODE_ENV === "development") {
-  dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
 
   app.use(morgan("dev"));
   // console.log(process.env.NODE_ENV);
