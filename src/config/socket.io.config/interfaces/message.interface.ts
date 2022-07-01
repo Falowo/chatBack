@@ -12,8 +12,8 @@ export interface IMessage {
   _id?: string;
   conversationId: string;
   senderId: string;
-  receivedByIds?: string[];
-  checkedByIds?: string[];
+  receivedByIds: string[];
+  checkedByIds: string[];
   status?: Status;
   text?: string;
   img?: string;
@@ -24,8 +24,8 @@ export interface IPMessage {
   _id?: string;
   conversationId: string;
   senderId: IUser;
-  receivedByIds?: string[];
-  checkedByIds?: string[];
+  receivedByIds: string[];
+  checkedByIds: string[];
   status?: Status;
   text?: string;
   img?: string;

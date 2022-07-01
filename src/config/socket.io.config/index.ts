@@ -43,19 +43,6 @@ export const InitSocketServer = () => {
     users = users.filter((u) => u.socketId !== socketId);
   };
 
-  // io = new Server(server, {
-  //   cors: {
-  //     origin: ["http://localhost:3000"],
-  //   },
-  // });
-
-  // io = new Server(server, {
-  //   cors: {
-  //     origin: [
-  //       "https://astonishing-naiad-20ad9f.netlify.app",
-  //     ],
-  //   },
-  // });
   io = new Server(server, {
     cors: {
       origin: [
@@ -74,6 +61,13 @@ export const InitSocketServer = () => {
       console.log("addUser");
 
       addUser(userId, socket.id);
+      io.emit("getUsers", users);
+    });
+    // removeUser
+    socket.on("removeUser", (userId: string) => {
+      console.log({ removedUser: userId });
+
+      removeUser(userId);
       io.emit("getUsers", users);
     });
 
