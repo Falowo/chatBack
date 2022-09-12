@@ -6,7 +6,7 @@
 .env.*
 
 # images
-/public
+# /public
 # **/*.png
 # **/*.jpeg
 # **/*.jpg
