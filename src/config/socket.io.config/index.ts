@@ -39,7 +39,9 @@ export const InitSocketServer = () => {
     return users.find((user) => user.userId === userId);
   };
 
-  const removeUser = (socketId: string) => {
+  
+
+  const disconnectUser = (socketId: string) => {
     users = users.filter((u) => u.socketId !== socketId);
   };
 
@@ -64,11 +66,15 @@ export const InitSocketServer = () => {
       io.emit("getUsers", users);
     });
     // removeUser
-    socket.on("removeUser", (userId: string) => {
-      console.log({ removedUser: userId });
+    socket.on("removeUser", () => {
+      console.log("removeUser");
 
-      removeUser(userId);
+      disconnectUser(socket.id);
+
       io.emit("getUsers", users);
+      console.log("a user was remove from socket users");
+
+      console.log({ aUserWasRemovedGetUsers: users });
     });
 
     // send a message
@@ -185,7 +191,7 @@ export const InitSocketServer = () => {
 
     socket.on("disconnecting", () => {
       console.log("a user disconnected");
-      removeUser(socket.id);
+      disconnectUser(socket.id);
       io.emit("getUsers", users);
     });
   });
