@@ -1,11 +1,8 @@
 import { Server, Socket } from "socket.io";
-import { server } from "../../app";
+import {
+   server
+} from "../../app";
 import { IConversation, IPMessage } from "./interfaces";
-// const io = new Server(8900, {
-//   cors: {
-//     origin: ["http://localhost:3000"],
-//   },
-// });
 
 export const InitSocketServer = () => {
   const io: Server = new Server(server, {
