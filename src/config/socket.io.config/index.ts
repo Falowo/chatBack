@@ -8,13 +8,13 @@ import { IConversation, IPMessage } from "./interfaces";
 // });
 
 export const InitSocketServer = () => {
-
   const io: Server = new Server(server, {
     cors: {
       origin: [
         "https://astonishing-naiad-20ad9f.netlify.app",
         "http://localhost:3000",
       ],
+      methods: ["GET", "POST"],
     },
   });
   interface User {
@@ -47,13 +47,9 @@ export const InitSocketServer = () => {
     return users.find((user) => user.userId === userId);
   };
 
-  
-
   const disconnectUser = (socketId: string) => {
     users = users.filter((u) => u.socketId !== socketId);
   };
-
-  
 
   //  connection lol
   io.on("connection", (socket) => {
