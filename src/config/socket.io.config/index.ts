@@ -1,4 +1,4 @@
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { server } from "../../app";
 import { IConversation, IPMessage } from "./interfaces";
 // const io = new Server(8900, {
@@ -52,7 +52,7 @@ export const InitSocketServer = () => {
   };
 
   //  connection lol
-  io.on("connection", (socket) => {
+  io.on("connection", (socket: Socket) => {
     console.log("a user connected to socket");
 
     // take userId and socketId from user
