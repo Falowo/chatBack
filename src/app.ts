@@ -17,9 +17,9 @@ if (process.env.NODE_ENV !== "production") {
 } else {
   app.use(
     cors({
-      origin:[
+      origin: [
         "https://astonishing-naiad-20ad9f.netlify.app",
-      ]
+      ],
     }),
   );
 }
@@ -40,6 +40,14 @@ if (process.env.NODE_ENV !== "production") {
 app.use(
   "/images",
   express.static(path.join(__dirname, "../public/images")),
+);
+app.use(
+  "/videos",
+  express.static(path.join(__dirname, "../public/videos")),
+);
+app.use(
+  "/audios",
+  express.static(path.join(__dirname, "../public/audios")),
 );
 
 const storage = multer.diskStorage({

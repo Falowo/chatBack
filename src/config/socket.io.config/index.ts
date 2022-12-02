@@ -8,7 +8,15 @@ import { IConversation, IPMessage } from "./interfaces";
 // });
 
 export const InitSocketServer = () => {
-  let io: Server;
+
+  const io: Server = new Server(server, {
+    cors: {
+      origin: [
+        "https://astonishing-naiad-20ad9f.netlify.app",
+        "http://localhost:3000",
+      ],
+    },
+  });
   interface User {
     userId: string;
     socketId: string;
@@ -45,14 +53,7 @@ export const InitSocketServer = () => {
     users = users.filter((u) => u.socketId !== socketId);
   };
 
-  io = new Server(server, {
-    cors: {
-      origin: [
-        "https://astonishing-naiad-20ad9f.netlify.app",
-        "http://localhost:3000",
-      ],
-    },
-  });
+  
 
   //  connection lol
   io.on("connection", (socket) => {

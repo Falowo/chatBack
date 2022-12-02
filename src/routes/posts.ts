@@ -3,6 +3,8 @@ import { AppRequest } from "../config/jwt.config";
 const router = express.Router();
 import { PostModel, UserModel } from "../database/models";
 import { Post } from "../database/models/Post";
+import * as fs from "fs";
+import path from "path";
 
 //create a post
 
@@ -18,12 +20,20 @@ router.post("/", async (req: AppRequest, res: Response) => {
 //update a post
 
 router.put(
-  "/:id",
+  "/update",
   async (req: AppRequest, res: Response) => {
+    console.log("ooooooooooooooooookkkkkkkkkkkkkkkkkkkk");
     try {
-      const post = await PostModel.findById(req.params.id);
-      if (post.userId === req.body.userId) {
-        await post.updateOne({ $set: req.body });
+      const {updatedPost} = req.body;
+      if (
+        updatedPost.userId.toString() ===
+        req.user._id.toString()
+      ) {console.log("COOOooooooooLLLLLL");
+      
+        await PostModel.updateOne(
+          { _id: updatedPost._id },
+          { $set: req.body },
+        );
         res.status(200).json("the post has been updated");
       } else {
         res
@@ -43,6 +53,54 @@ router.delete(
     try {
       const post = await PostModel.findById(req.params.id);
       if (post.userId === req.body.userId) {
+        if (!!post.img) {
+          fs.rm(
+            path.join(
+              __dirname,
+              "../public/images",
+              post.img,
+            ),
+            () => {
+              console.log("");
+            },
+          );
+        }
+        if (!!post.img) {
+          fs.rm(
+            path.join(
+              __dirname,
+              "../public/images",
+              post.img,
+            ),
+            () => {
+              console.log("");
+            },
+          );
+        }
+        if (!!post.video) {
+          fs.rm(
+            path.join(
+              __dirname,
+              "../public/video",
+              post.video,
+            ),
+            () => {
+              console.log("");
+            },
+          );
+        }
+        if (!!post.audio) {
+          fs.rm(
+            path.join(
+              __dirname,
+              "../public/audio",
+              post.audio,
+            ),
+            () => {
+              console.log("");
+            },
+          );
+        }
         await post.deleteOne();
         res.status(200).json("the post has been deleted");
       } else {

@@ -30,6 +30,12 @@ export class Post {
   @prop()
   public img?: string;
 
+  @prop()
+  public video?: string;
+  
+  @prop()
+  public audio?: string;
+
   @prop({
     ref: () => User,
   })
