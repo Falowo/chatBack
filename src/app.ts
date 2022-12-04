@@ -1,5 +1,8 @@
-import express, { Response } from "express";
+import express, { Response, Express } from "express";
+import { createServer } from "http";
 // import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 import "./database";
 import cors from "cors";
 import path from "path";
@@ -8,9 +11,9 @@ import index from "./routes/index";
 import multer from "multer";
 import { AppRequest } from "./config/jwt.config";
 
-export const app = express();
-const port = process.env.PORT || 8800;
-export const server = app.listen(port);
+export const app: Express = express();
+const port = process.env.PORT;
+export const httpServer = createServer(app);
 
 if (process.env.NODE_ENV !== "production") {
   app.use(cors());
@@ -19,6 +22,7 @@ if (process.env.NODE_ENV !== "production") {
     cors({
       origin: [
         "https://astonishing-naiad-20ad9f.netlify.app",
+        
       ],
     }),
   );
@@ -28,8 +32,7 @@ app.use(express.json());
 import "./config/socket.io.config/";
 
 if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-
+ 
   app.use(morgan("dev"));
   // console.log(process.env.NODE_ENV);
 }
@@ -84,3 +87,5 @@ app.post(
 );
 
 app.use("/api/", index);
+
+httpServer.listen(port);

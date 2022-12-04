@@ -1,11 +1,11 @@
 import { Server, Socket } from "socket.io";
 import {
-   server
+   httpServer
 } from "../../app";
 import { IConversation, IPMessage } from "./interfaces";
 
 export const InitSocketServer = () => {
-  const io: Server = new Server(server, {
+  const io: Server = new Server(httpServer, {
     cors: {
       origin: [
         "https://astonishing-naiad-20ad9f.netlify.app",
