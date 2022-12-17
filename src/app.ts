@@ -20,10 +20,7 @@ if (process.env.NODE_ENV !== "production") {
 } else {
   app.use(
     cors({
-      origin: [
-        "https://astonishing-naiad-20ad9f.netlify.app",
-        
-      ],
+      origin: process.env.URL,
     }),
   );
 }
@@ -32,7 +29,6 @@ app.use(express.json());
 import "./config/socket.io.config/";
 
 if (process.env.NODE_ENV !== "production") {
- 
   app.use(morgan("dev"));
   // console.log(process.env.NODE_ENV);
 }
