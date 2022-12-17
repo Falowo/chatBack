@@ -13,7 +13,6 @@ import { AppRequest } from "./config/jwt.config";
 
 export const app: Express = express();
 const port = process.env.PORT;
-export const httpServer = createServer(app);
 
 if (process.env.NODE_ENV !== "production") {
   app.use(cors());
@@ -25,8 +24,6 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 app.use(express.json());
-
-import "./config/socket.io.config/";
 
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
@@ -84,4 +81,6 @@ app.post(
 
 app.use("/api/", index);
 
+export const httpServer = createServer(app);
+import "./config/socket.io.config/";
 httpServer.listen(port);
