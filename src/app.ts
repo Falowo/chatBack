@@ -1,5 +1,5 @@
 import express, { Response, Express } from "express";
-import { createServer } from "https";
+import { createServer } from "http";
 import dotenv from "dotenv";
 dotenv.config();
 // import mongoose from "mongoose";
@@ -11,9 +11,8 @@ import index from "./routes/index";
 import multer from "multer";
 import { AppRequest } from "./config/jwt.config";
 
-export const app: Express = express();
+const app: Express = express();
 const port = process.env.PORT;
-
 if (process.env.NODE_ENV !== "production") {
   app.use(cors());
 } else {
@@ -23,6 +22,9 @@ if (process.env.NODE_ENV !== "production") {
     }),
   );
 }
+export const httpServer = createServer(app);
+import "./config/socket.io.config/";
+
 app.use(express.json());
 
 if (process.env.NODE_ENV !== "production") {
@@ -81,6 +83,4 @@ app.post(
 
 app.use("/api/", index);
 
-export const httpServer = createServer(app);
-import "./config/socket.io.config/";
 httpServer.listen(port);
