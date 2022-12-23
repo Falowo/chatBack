@@ -22,18 +22,26 @@ router.post("/", async (req: AppRequest, res: Response) => {
 router.put(
   "/update",
   async (req: AppRequest, res: Response) => {
-    console.log("ooooooooooooooooookkkkkkkkkkkkkkkkkkkk");
+    console.log("kaka");
     try {
-      const {updatedPost} = req.body;
+      const { updatedPost } = req.body;
+      console.log(updatedPost);
       if (
         updatedPost.userId.toString() ===
         req.user._id.toString()
-      ) {console.log("COOOooooooooLLLLLL");
-      
-        await PostModel.updateOne(
-          { _id: updatedPost._id },
-          { $set: req.body },
-        );
+      ) {
+        console.log(updatedPost.userId.toString());
+
+        const returnedUpdatedPost =
+          await PostModel.findOneAndUpdate(
+            { _id: updatedPost._id },
+            { $set: { desc:updatedPost.desc,
+            img:updatedPost.img,
+            } },
+          );
+
+          console.log({returnedUpdatedPost});
+          
         res.status(200).json("the post has been updated");
       } else {
         res
