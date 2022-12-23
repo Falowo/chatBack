@@ -34,7 +34,7 @@ router.put(
         // deletion ofo old files
 
         const post = await PostModel.findById(
-          req.params.id,
+          updatedPost._id,
         );
         if (!!post.img) {
           fs.rm(

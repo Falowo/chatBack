@@ -16,7 +16,7 @@ router.put(
   "/:id",
   async (req: AppRequest, res: Response) => {
     if (
-      req.body.userId === req.params.id ||
+      req.body.userId.toString() === req.params.id.toString() ||
       req.body.isAdmin
     ) {
       if (req.body.password) {
