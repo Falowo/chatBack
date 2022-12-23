@@ -10,9 +10,16 @@ import path from "path";
 
 router.post("/", async (req: AppRequest, res: Response) => {
   const newPost = new PostModel(req.body);
+
   try {
-    const savedPost = await newPost.save();
-    res.status(200).json(savedPost);
+    if (
+      newPost.userId.toString() === req.user._id.toString()
+    ) {
+      const savedPost = await newPost.save();
+      res.status(200).json(savedPost);
+    } else {
+      res.status(403).json("Are you trying to cheat?");
+    }
   } catch (err) {
     res.status(500).json(err);
   }
@@ -29,18 +36,24 @@ router.put(
         updatedPost.userId.toString() ===
         req.user._id.toString()
       ) {
-        console.log(updatedPost.userId.toString());
-
-        // deletion ofo old files
+        // deletion of old files
 
         const post = await PostModel.findById(
           updatedPost._id,
         );
         if (!!post.img) {
+          console.log(
+            path.join(
+              __dirname,
+              "../../public/images",
+              post.img,
+            ),
+          );
+
           fs.rm(
             path.join(
               __dirname,
-              "../public/images",
+              "../../public/images",
               post.img,
             ),
             () => {
@@ -53,7 +66,7 @@ router.put(
           fs.rm(
             path.join(
               __dirname,
-              "../public/video",
+              "../../public/video",
               post.video,
             ),
             () => {
@@ -65,7 +78,7 @@ router.put(
           fs.rm(
             path.join(
               __dirname,
-              "../public/audio",
+              "../../public/audio",
               post.audio,
             ),
             () => {
@@ -114,7 +127,7 @@ router.delete(
           fs.rm(
             path.join(
               __dirname,
-              "../public/images",
+              "../../public/images",
               post.img,
             ),
             () => {
@@ -127,7 +140,7 @@ router.delete(
           fs.rm(
             path.join(
               __dirname,
-              "../public/video",
+              "../../public/video",
               post.video,
             ),
             () => {
@@ -139,7 +152,7 @@ router.delete(
           fs.rm(
             path.join(
               __dirname,
-              "../public/audio",
+              "../../public/audio",
               post.audio,
             ),
             () => {

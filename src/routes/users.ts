@@ -626,7 +626,7 @@ router.put(
       await fs.remove(
         path.join(
           __dirname,
-          `../public/images/${oldFileName}`,
+          `../../public/images/${oldFileName}`,
         ),
       );
       console.log({ oldFileName });
@@ -662,7 +662,7 @@ router.put(
         (await fs.remove(
           path.join(
             __dirname,
-            `../public/images/${oldFileName}`,
+            `../../public/images/${oldFileName}`,
           ),
         ));
       console.log({ oldFileName });
