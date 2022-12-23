@@ -22,7 +22,6 @@ router.post("/", async (req: AppRequest, res: Response) => {
 router.put(
   "/update",
   async (req: AppRequest, res: Response) => {
-    console.log("kaka");
     try {
       const { updatedPost } = req.body;
       console.log(updatedPost);
@@ -32,16 +31,66 @@ router.put(
       ) {
         console.log(updatedPost.userId.toString());
 
+        // deletion ofo old files
+
+        const post = await PostModel.findById(
+          req.params.id,
+        );
+        if (!!post.img) {
+          fs.rm(
+            path.join(
+              __dirname,
+              "../public/images",
+              post.img,
+            ),
+            () => {
+              console.log("");
+            },
+          );
+        }
+
+        if (!!post.video) {
+          fs.rm(
+            path.join(
+              __dirname,
+              "../public/video",
+              post.video,
+            ),
+            () => {
+              console.log("");
+            },
+          );
+        }
+        if (!!post.audio) {
+          fs.rm(
+            path.join(
+              __dirname,
+              "../public/audio",
+              post.audio,
+            ),
+            () => {
+              console.log("");
+            },
+          );
+        }
+
+        // deletion end
+
         const returnedUpdatedPost =
           await PostModel.findOneAndUpdate(
             { _id: updatedPost._id },
-            { $set: { desc:updatedPost.desc,
-            img:updatedPost.img,
-            } },
+            {
+              $set: {
+                desc: updatedPost.desc,
+                img: updatedPost.img,
+                video: updatedPost.video,
+                audio: updatedPost.audio,
+              },
+            },
           );
 
-          console.log({returnedUpdatedPost});
-          
+        console.log({ returnedUpdatedPost });
+
         res.status(200).json("the post has been updated");
       } else {
         res
@@ -73,18 +122,7 @@ router.delete(
             },
           );
         }
-        if (!!post.img) {
-          fs.rm(
-            path.join(
-              __dirname,
-              "../public/images",
-              post.img,
-            ),
-            () => {
-              console.log("");
-            },
-          );
-        }
+
         if (!!post.video) {
           fs.rm(
             path.join(
