@@ -41,15 +41,7 @@ router.put(
         const post = await PostModel.findById(
           updatedPost._id,
         );
-        if (!!post.img) {
-          console.log(
-            path.join(
-              __dirname,
-              "../../public/images",
-              post.img,
-            ),
-          );
-
+        if (!!post.img && post.img !== updatedPost.img) {
           fs.rm(
             path.join(
               __dirname,
@@ -62,7 +54,10 @@ router.put(
           );
         }
 
-        if (!!post.video) {
+        if (
+          !!post.video &&
+          post.video !== updatedPost.video
+        ) {
           fs.rm(
             path.join(
               __dirname,
@@ -74,7 +69,10 @@ router.put(
             },
           );
         }
-        if (!!post.audio) {
+        if (
+          !!post.audio &&
+          post.audio !== updatedPost.audio
+        ) {
           fs.rm(
             path.join(
               __dirname,
