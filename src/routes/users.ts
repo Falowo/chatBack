@@ -16,7 +16,8 @@ router.put(
   "/:id",
   async (req: AppRequest, res: Response) => {
     if (
-      req.body.userId.toString() === req.params.id.toString() ||
+      req.body.userId.toString() ===
+        req.params.id.toString() ||
       req.body.isAdmin
     ) {
       if (req.body.password) {
@@ -577,6 +578,7 @@ router.put(
             {
               $push: {
                 friends: userId,
+                followedIds: userId,
               },
               $pull: {
                 friendRequestsFrom: userId,
@@ -677,7 +679,8 @@ router.put(
 router.put(
   "/currentUser/updateInfo",
   async (req: AppRequest, res: Response) => {
-    const { city, from, relationship } = req.body.toUpdateUserInfo;
+    const { city, from, relationship } =
+      req.body.toUpdateUserInfo;
     try {
       let currentUser = await UserModel.findById(
         req.user._id,

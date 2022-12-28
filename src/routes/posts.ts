@@ -120,7 +120,12 @@ router.delete(
   async (req: AppRequest, res: Response) => {
     try {
       const post = await PostModel.findById(req.params.id);
-      if (post.userId === req.body.userId) {
+      if (
+        post.userId.toString() ===
+          req.user._id.toString() ||
+        post.onTheWallOf.toString() ===
+          req.user._id.toString()
+      ) {
         if (!!post.img) {
           fs.rm(
             path.join(
@@ -200,7 +205,7 @@ router.put(
   },
 );
 
-//get timeline posts
+//get timeline currentUser posts
 
 router.get(
   "/timeline/currentUser",
@@ -215,47 +220,56 @@ router.get(
         },
       )
         .sort({ createdAt: -1 })
-        .limit(3);
+        .limit(16);
 
-      let friendsPosts: Post[][] = [];
+      // let friendsPosts: Post[][] = [];
+      const followedByCurrentUser = currentUser.followedIds;
 
-      await Promise.all(
-        currentUser?.followedIds?.map(async (f) => {
-          const posts = await PostModel.find({ userId: f })
-            .sort({ createdAt: -1 })
-            .limit(10);
+      if (!!followedByCurrentUser.length) {
+        const posts = await PostModel.find({
+          userId: { $in: followedByCurrentUser },
+        })
+          .sort({ createdAt: -1 })
+          .limit(16);
 
-          friendsPosts.push(posts);
-        }),
-      );
+        console.log({ posts });
 
-      const flatFriendsPosts: Post[] = friendsPosts
-        .flat()
-        .filter(
+        const timeline = currentUserPosts.concat(
+          posts,
+        );
+
+        timeline.sort((a: Post, b: Post) => {
+          return (
+            b.createdAt!.valueOf() - a.createdAt!.valueOf()
+          );
+        });
+
+        const filteredTimeline = timeline.filter(
           (p) =>
             !p.onTheWallOf ||
             p.onTheWallOf.toString() ===
               currentUser._id.toString(),
         );
 
-      const timeline = (currentUserPosts || []).concat(
-        flatFriendsPosts,
-      );
+        res.status(200).json(filteredTimeline);
+      } else {
+        const filteredcurrentUserPosts =
+          currentUserPosts.filter(
+            (p) =>
+              !p.onTheWallOf ||
+              p.onTheWallOf.toString() ===
+                currentUser._id.toString(),
+          );
 
-      timeline.sort((a: Post, b: Post) => {
-        return (
-          b.createdAt!.valueOf() - a.createdAt!.valueOf()
-        );
-      });
-
-      res.status(200).json(timeline);
+        res.status(200).json(filteredcurrentUserPosts);
+      }
     } catch (err) {
       res.status(500).json(err);
     }
   },
 );
 
-//get user's all posts
+//get  profile posts by username
 
 router.get(
   "/profile/:username",

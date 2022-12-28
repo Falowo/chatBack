@@ -14,4 +14,4 @@
 
 # prod
 
-/dist/
+**/dist/
