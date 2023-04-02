@@ -95,6 +95,9 @@ export class User {
     default: false,
   })
   public isAdmin: boolean;
+  @prop({
+    default: false,
+  })
 
   @prop({
     maxlength: 50,

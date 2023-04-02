@@ -28,7 +28,6 @@ export const signin = async (
       console.log({ user });
       if (!user) {
         res.status(400).send("invalid email...");
-        return;
       } else {
         const validPassword = await user.comparePassword(
           password,
@@ -36,7 +35,6 @@ export const signin = async (
 
         if (!validPassword) {
           res.status(400).send("invalid password...");
-          return;
         } else {
           const token = createJwtToken(user);
           req.user = user;

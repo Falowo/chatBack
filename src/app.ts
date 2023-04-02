@@ -11,7 +11,7 @@ import index from "./routes/index";
 import multer from "multer";
 import { AppRequest } from "./config/jwt.config";
 
-const app: Express = express();
+export const app: Express = express();
 const port = process.env.PORT;
 if (process.env.NODE_ENV !== "production") {
   app.use(cors());
@@ -69,6 +69,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
 app.post(
   "/api/upload",
   upload.single("file"),
