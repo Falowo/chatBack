@@ -24,6 +24,11 @@ export const InitSocketServer = () => {
     conversation: IConversation;
     message: IPMessage;
   }
+  interface OnDeleteMessageProps {
+    receiverId: string;
+    conversation: IConversation;
+    messageId: string;
+  }
 
   let users: User[] = [];
 
@@ -48,7 +53,7 @@ export const InitSocketServer = () => {
     users = users.filter((u) => u.socketId !== socketId);
   };
 
-  //  connection lol
+  //  connection 
   io.on("connection", (socket: Socket) => {
     console.log("a user connected to socket");
 
@@ -85,6 +90,46 @@ export const InitSocketServer = () => {
           io.to(receiver?.socketId).emit("getMessage", {
             conversation,
             message,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    );
+    // edit a message
+
+    socket.on(
+      "editMessage",
+      async (props: OnSendMessageProps) => {
+        const { receiverId, conversation, message } = props;
+        try {
+          const receiver = getUser(receiverId);
+
+          console.log({ "editMessage to": receiver });
+
+          io.to(receiver?.socketId).emit("getMessageEdit", {
+            conversation,
+            message,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    );
+    // delete a message
+
+    socket.on(
+      "deleteMessage",
+      async (props: OnDeleteMessageProps) => {
+        const { receiverId, conversation, messageId } = props;
+        try {
+          const receiver = getUser(receiverId);
+
+          console.log({ "editMessage to": receiver });
+
+          io.to(receiver?.socketId).emit("getMessageDelete", {
+            conversation,
+            messageId,
           });
         } catch (error) {
           console.log(error);
