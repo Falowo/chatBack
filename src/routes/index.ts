@@ -3,7 +3,6 @@ const router = express.Router();
 
 
 import auth from "./auth";
-import posts from "./posts";
 import users from "./users";
 import messages from "./messages";
 import conversations from "./conversations";
@@ -16,12 +15,7 @@ router.use(
   addJwtFeatures,
   users,
 );
-router.use(
-  "/posts",
-  extractUserFromToken,
-  addJwtFeatures,
-  posts,
-);
+
 router.use(
   "/conversations",
   extractUserFromToken,

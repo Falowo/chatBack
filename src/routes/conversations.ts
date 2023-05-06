@@ -14,7 +14,7 @@ import {
 } from "../controllers/conversationsControllers/conversations.controller";
 //create a conversation
 
-router.post("/", create);
+router.post("/new", create);
 //update a conv
 
 router.put("/:id", update);

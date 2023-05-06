@@ -125,7 +125,7 @@ export const InitSocketServer = () => {
         try {
           const receiver = getUser(receiverId);
 
-          console.log({ "editMessage to": receiver });
+          console.log({ "deleteMessage to": receiver });
 
           io.to(receiver?.socketId).emit("getMessageDelete", {
             conversation,
@@ -218,6 +218,58 @@ export const InitSocketServer = () => {
 
           io.to(receiver?.socketId).emit(
             "getFriendRequest",
+            senderId,
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    );
+    // acceptFriendRequest
+    socket.on(
+      "acceptFriendRequest",
+      async (props: {
+        senderId: string;
+        receiverId: string;
+      }) => {
+        const { receiverId, senderId } = props;
+        try {
+          const receiver = getUser(receiverId);
+          const sender = getUser(senderId);
+
+          console.log({
+            "acceptFriendRequest to": receiver,
+            from: sender,
+          });
+
+          io.to(receiver?.socketId).emit(
+            "acceptedFriendRequest",
+            senderId,
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    );
+    // declineFriendRequest
+    socket.on(
+      "declineFriendRequest",
+      async (props: {
+        senderId: string;
+        receiverId: string;
+      }) => {
+        const { receiverId, senderId } = props;
+        try {
+          const receiver = getUser(receiverId);
+          const sender = getUser(senderId);
+
+          console.log({
+            "decline FriendRequest to": receiver,
+            from: sender,
+          });
+
+          io.to(receiver?.socketId).emit(
+            "declinedFriendRequest",
             senderId,
           );
         } catch (error) {

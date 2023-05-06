@@ -187,22 +187,25 @@ export const checkedByCurrentUser = async (
   }
 };
 
-export const getLastMessageOfConversation = async (req: AppRequest, res: Response) => {
-    try {
-      const messages = await MessageModel.find({
-        conversationId: req.params.conversationId,
-      })
-        .sort({ createdAt: -1 })
-        .limit(1);
-      const lastMessage = messages[0];
-      res.status(200).json(lastMessage);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  };
+export const getLastMessageOfConversation = async (
+  req: AppRequest,
+  res: Response,
+) => {
+  try {
+    const messages = await MessageModel.find({
+      conversationId: req.params.conversationId,
+    })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    const lastMessage = messages[0];
+    res.status(200).json(lastMessage);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 
-
-  export const getUncheckedMessagesByCurrentUserByConversationId = async (req: AppRequest, res: Response) => {
+export const getUncheckedMessagesByCurrentUserByConversationId =
+  async (req: AppRequest, res: Response) => {
     const { conversationId } = req.params;
     const currentUserId = req.user._id;
 
@@ -236,33 +239,89 @@ export const getLastMessageOfConversation = async (req: AppRequest, res: Respons
     }
   };
 
-  export const getMessagesArrayFromMessagesIdsArray = async (req: AppRequest, res: Response) => {
-    try {
-      const { messagesIds } = req.body;
-      const messages = await Promise.all(
-        messagesIds.map((mId) =>
-          MessageModel.findById(mId).populate({
-            path: "senderId",
-          }),
-        ),
+export const getMessagesArrayFromMessagesIdsArray = async (
+  req: AppRequest,
+  res: Response,
+) => {
+  try {
+    const { messagesIds } = req.body;
+    const messages = await Promise.all(
+      messagesIds.map((mId) =>
+        MessageModel.findById(mId).populate({
+          path: "senderId",
+        }),
+      ),
+    );
+    res.status(200).json(messages);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+export const getAllMessagesFromConversationId = async (
+  req: AppRequest,
+  res: Response,
+) => {
+  try {
+    const messages = await MessageModel.find({
+      conversationId: req.params.conversationId,
+    }).populate({ path: "senderId" });
+    res.status(200).json(messages);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+export const deleteMessage = async (
+  req: AppRequest,
+  res: Response,
+) => {
+  try {
+    const message = await MessageModel.findById(
+      req.params.messageId,
+    );
+
+    // if (
+    //   message?.senderId.toString() ===
+    //   req.user._id.toString()
+    // ) {
+
+      await ConversationModel.findOneAndUpdate(
+        { _id: message.conversationId },
+        {
+          $pull: { messagesId: message._id },
+        },
       );
-      res.status(200).json(messages);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  };
 
-  export const getAllMessagesFromConversationId = async (req: AppRequest, res: Response) => {
-    try {
-      const messages = await MessageModel.find({
-        conversationId: req.params.conversationId,
-      }).populate({ path: "senderId" });
-      res.status(200).json(messages);
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  };
+      await MessageModel.findByIdAndDelete(
+        req.params.messageId,
+      );
 
+      res.status(200).json("Message deleted");
+   
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+export const updateMessage = async (
+  req: AppRequest,
+  res: Response,
+) => {
+  const messageId = req.params.messageId;
+  const { text } = req.body;
+  try {
+    const newMessage = await MessageModel.findByIdAndUpdate(
+      messageId,
+      { $set: { text: text } },
+      { new: true },
+      
+    ).populate("senderId");
+    res.status(200).json(newMessage);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 
 function areEqual(array1: any[], array2: any[]) {
   if (array1.length === array2.length) {

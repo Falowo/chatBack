@@ -24,7 +24,7 @@ export class User {
     maxlength: 20,
     unique: true,
   })
-  public username: String;
+  public username: string;
 
   @prop({
     required: true,
@@ -37,29 +37,19 @@ export class User {
       message: "Invalid email.",
     },
   })
-  public email: String;
+  public email: string;
 
   @prop({
     required: true,
     minlength: 6,
   })
-  public password: String;
+  public password: string;
 
-  @prop({ type: String })
-  public profilePicture?: String;
+  @prop()
+  public profilePicture?: string;
 
-  @prop({ type: String })
-  public coverPicture?: String;
-
-  @prop({
-    ref: () => User,
-  })
-  public followersIds?: Ref<User>[];
-
-  @prop({
-    ref: () => User,
-  })
-  public followedIds?: Ref<User>[];
+  @prop()
+  public coverPicture?: string;
 
   @prop({
     ref: () => User,
@@ -95,29 +85,26 @@ export class User {
     default: false,
   })
   public isAdmin: boolean;
-  @prop({
-    default: false,
-  })
 
   @prop({
     maxlength: 50,
   })
-  public desc?: String;
+  public desc?: string;
 
   @prop({
     maxlength: 50,
   })
-  public city?: String;
+  public city?: string;
 
   @prop({
     maxlength: 50,
   })
-  public from?: String;
+  public from?: string;
 
   @prop({
     enum: [1, 2, 3],
   })
-  public relationship?: Number;
+  public relationship?: number;
 
   @prop()
   public birthDate?: Date;
